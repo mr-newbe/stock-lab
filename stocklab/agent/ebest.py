@@ -1,4 +1,4 @@
-import configparser
+import configparser #config.ini 파일을 읽기 쉽게 해주고 만드는것도 해주는 라이브러리
 import win32com.client
 import pythoncom
 
@@ -41,5 +41,25 @@ class EBest:
     config.read('conf/config.ini')
     self.user = config[run_mode]['user']
     self.passwd = config[run_mode]
+    self.cert_passwd = config[run_mode]['cert_passwd']
+    self.host = config[run_mode]['host']
+    self.port = config[run_mode]['port']
+    self.account = config[run_mode]['account']
 
+
+
+    self.xa_session_client = win32com.client.DispatchWithEvents("XA_Session.XASession",XASession)
+
+  def login(self):
+    self.xa_session_client.connectServer(self.host, self.port)
+    self.xa_session_client.Login(self.user, self.passwd, self.cert_passwd, 0,0)
+    while XASession.login_state == 0:  #로그인될 때까지 기다림
+      pythoncom.PumpWaitingMessages()
+
+  def logout(self):
+    #result = self.xa_session_client.Logout()
+    #if result:
+    XASession.login_state = 0
+    self.xa_session_client.DisconnectServer()
+    
     
