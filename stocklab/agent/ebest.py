@@ -4,6 +4,13 @@ import pythoncom
 
 #이 객체는 사용자의 연결 상태정보를 관리하기 위한 객체입니다.
 class XASession : 
+  #TR의 xingAPI를 사용한 조회 횟수 제한
+  #10분에 200회의 제한이 있다
+  QUERY_LIMIT_10MIN = 200
+  LIMIT_SECONDS = 600 #10MIN
+
+
+  
   #로그인 상태를 확인하기 위함
   login_state = 0
 
@@ -49,6 +56,65 @@ class EBest:
 
 
     self.xa_session_client = win32com.client.DispatchWithEvents("XA_Session.XASession",XASession)
+    self.query_cnt = []
+
+
+  def _execute_query(self, res, in_block_name, out_block_name, *out_fields, **set_fields):
+    """
+     TR 코드를 실행하기 위한 메서드이다.
+     :param res:str 리소스 이름(TR)
+     :param in_block_name:str 인 블록 이름
+     :param out_block_name:str 인 아웃블록 이름
+     :param out_params:list 출력 필드 리스트
+     :param in_params:dict 인 블록에 설정할 필드 딕셔너리
+     :return result:list 결과를 list에 담아서 반환
+    """
+    time.sleep(1)
+
+    print("current query cnt:",len(self.query_cnt))
+    print(res, in_block_name, out_block_name)
+    while len(self.query_cnt) >= EBest.QUERY_LIMIT_10MIN:
+      time.sleep(1)
+      print("waiting for execute query... current query cnt:", len(self.query_cnt))
+      self.query_cnt = list(filter(lambda x:(datetime.today() - x).total_seconds() < EBest.LIMIT_SECONDS, self.query_cnt))
+
+    xa_query = win32com.client.DispatchWithEvents("XA_DataSet.XAQuery", XAQuery)
+    xa_query.LoadFromResFile(XAQuery.RES_PATH + res + ".res")
+
+    #in_block_name 세팅
+    for key, value in set_fields.items():
+      xa_query.SetFieldData(in_block_name, key, 0, value)
+    errorCode = xa_query.Request(0)
+
+    waiting_cnt = 0
+    while xa_query.tr_tun_state == 0:
+      waiting_cnt += 1
+      if waiting_cnt % 100000 == 0:
+        print("Waiting....", self.xa_session_client.GetLastError())
+      pythoncom.PumpWaitingMessage()
+    
+    #결과 블록
+    result= []
+    count = xa_query.GetBlockCount(out_block_name)
+
+    for i in range(count):
+      item={}
+      for field in out_fields:
+        value = xa_query.GetFieldData(out_block_name, field, i)
+        item[field] = value
+      result.append(item)
+    
+    #제약 시간 체크
+    XAQuery.tr_run_state = 0
+    self.query_cnt.append(datetime.today())
+
+    #영문 필드명을 한글 필드명으로 변환
+    for item in result:
+      for field in list(item.keys())
+        if getattr(Field, res, None):
+          res_field = getattr(Field, res, None)
+          if out_block_name in res_field:
+            field_hname = res_field[out_block_name]
 
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -62,4 +128,16 @@ class EBest:
     XASession.login_state = 0
     self.xa_session_client.DisconnectServer()
     
-    
+
+class XAQuery:
+  RES_PATH = "C:\\eBest\\xingAPI\\Res\\"
+  tr_run_state = 0
+  #요청한 API에 대해 데이터를 수신했을 때 발생하는 이벤트
+  def OnReceiveData(self,code):
+    print("OnReceiveData",code)
+    XAQurey.tr_run_state = 1
+  #요청한 API에 대해 메시지(성공, 실패)를 받았을 때 발생하는 이벤트
+  def OnReceiveMessage(self, error, code, message):
+    print("OnReceiveMessage",error, code, message)
+
+  
