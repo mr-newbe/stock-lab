@@ -162,4 +162,17 @@ class XAQuery:
   def OnReceiveMessage(self, error, code, message):
     print("OnReceiveMessage",error, code, message)
 
+
+
+class Field:
+  t1101 = {
+    "t1101OutBlock":{
+      "hname":"한글명",
+      "price":"현재가",
+      "sign":"전일대비구분",
+      "open":"시가",
+      "high":"고가",
+      "low":"저가"
+  }
+
   
