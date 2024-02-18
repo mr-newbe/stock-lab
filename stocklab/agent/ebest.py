@@ -59,7 +59,9 @@ class EBest:
     self.query_cnt = []
 
 
-  def _execute_query(self, res, in_block_name, out_block_name, *out_fields, **set_fields):
+  def _execute_query(self, res, in_block_name, out_block_name, *out_fields, **set_fields): #가변적으로 인자 전달하기 위한 위치 인자 *
+   # **는 키워드 인자로서 키-값 형태의 인자를 전달할 때 사용합니다. set_fields = {"a":1,"b":2,"c":3} 일 때 **set_fields 로 받아온 여기에서 set_field["c"] == 3이 되는 것입니다.
+    
     """
      TR 코드를 실행하기 위한 메서드이다.
      :param res:str 리소스 이름(TR)
@@ -73,20 +75,29 @@ class EBest:
 
     print("current query cnt:",len(self.query_cnt))
     print(res, in_block_name, out_block_name)
+
+    #현재 리스트의 갯수, query_cnt가 QUERY_LIMIT_10MIN = 200을 넘었다면 time.sleep으로 1초간 정지
     while len(self.query_cnt) >= EBest.QUERY_LIMIT_10MIN:
       time.sleep(1)
       print("waiting for execute query... current query cnt:", len(self.query_cnt))
-      self.query_cnt = list(filter(lambda x:(datetime.today() - x).total_seconds() < EBest.LIMIT_SECONDS, self.query_cnt))
 
+      #갯수가 초과되어 일시정지 되었다면 리스트 내부에 대해 filter를 통해 600가 넘지 않는 요소들만 query_cnt에 담습니다.
+      #방법은 filter(lambda x : a - x < n, t)을 통해서 t라는 배열의 각 요소의 값에 대해 a에서 뺀 값이 n 보다 작으면 살려준다는 코드입니다.
+      #기능을 정리하자면 리스트 개수가 200개를 넘지 않으면 while을 통과, 코드가 진행되지만 넘는다면 ==> 1초 기다리고 호출된지 10분 지난 시각 정보를 제거하는 과정을 반복합니다.
+      self.query_cnt = list(filter(lambda x:(datetime.today() - x).total_seconds() < EBest.LIMIT_SECONDS, self.query_cnt)) 
+      
+    #xaQuery 객체를 만들고 LoadFromResFile 메서드를 이용해 리소스 파일을 불러옴
     xa_query = win32com.client.DispatchWithEvents("XA_DataSet.XAQuery", XAQuery)
     xa_query.LoadFromResFile(XAQuery.RES_PATH + res + ".res")
 
     #in_block_name 세팅
+    #tr을 하기 전에 필요한 값들을 채우는 과정
     for key, value in set_fields.items():
       xa_query.SetFieldData(in_block_name, key, 0, value)
     errorCode = xa_query.Request(0)
 
     waiting_cnt = 0
+    # TR의 실행을 기다리는 while 문의 실행 10000번 당 한번씩 기다리란 문구 출력
     while xa_query.tr_tun_state == 0:
       waiting_cnt += 1
       if waiting_cnt % 100000 == 0:
@@ -94,9 +105,11 @@ class EBest:
       pythoncom.PumpWaitingMessage()
     
     #결과 블록
+    # 결과가 몇개인지 확인한다.
     result= []
     count = xa_query.GetBlockCount(out_block_name)
 
+    # out_fields(이 메서드의 매개변수)에 정의해놓은 필드의 값들만을 가져오는 코드
     for i in range(count):
       item={}
       for field in out_fields:
@@ -109,12 +122,21 @@ class EBest:
     self.query_cnt.append(datetime.today())
 
     #영문 필드명을 한글 필드명으로 변환
+    #결과의 item별로, 그리고 각 항목의 필드명을 리스트로 가져옴
     for item in result:
       for field in list(item.keys())
+      # TR별 필드명을 정의해놓은 Field에서 res라는 영문 필드명이 보인다면 그 값을, 없다면 None을...
         if getattr(Field, res, None):
           res_field = getattr(Field, res, None)
+          #getattr 메서드로 수행하려는 res가 Field 속성에 있는지 확인하고 있다면 field_hname으로 저장
           if out_block_name in res_field:
             field_hname = res_field[out_block_name]
+            #item의 각 영문 필드명인 field가 field_hname에 있는지 확인하고, 있으면 field_hname[field]로 item에 한글 필드명을 저장함
+            if field in field_hname:
+              item[field_hname[field]] = item[field]
+              item.pop(field)
+
+  return result
 
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
