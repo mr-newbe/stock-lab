@@ -136,7 +136,29 @@ class EBest:
               item[field_hname[field]] = item[field]
               item.pop(field)
 
-  return result
+    return result
+
+
+
+
+  def get_code_list(self, markey=None):
+    """
+    TR : t8436  코스피, 코스닥의 종목 리스트를 가져온다
+    : param market : str 전체(0), 코스피(1), 코스닥(2)
+    """
+    if market != "ALL" and market != "KOSPI" and market != "KOSDAQ":
+      raise Exception("Need to market param(All, Kospi, Kosdaq)")
+
+    market_code = {"ALL":"0", "KOSPI":"1","KOSDAQ":"2"}
+    in_params = {"gubun":market_code[market]}
+    out_params = ['hname', 'shcode', 'expcode', 'etfgubun', 'memedam', 'gubun', 'spac_guban']
+    result = self._execute_query("t8436",
+                                 "t8436InBlock",
+                                 "t8436OutBlock",
+                                 *out_params,
+                                 **in_params
+                                )
+    return result
 
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -174,5 +196,16 @@ class Field:
       "high":"고가",
       "low":"저가"
   }
+
+
+
+"""
+우리가 만들고 있는 프로그램은, 주식 거래 프로그램입니다.
+즉 영용문을 만들고 있다고 생각하면 편할 것입니다.
+
+주식 종목 조회, 기간별 주가, 신용 거래 동향, 외인 기관별 종목별 동향, 공매도 추이 등 몇가지 TR을 구현한다고 합니다.
+"""
+
+
 
   
