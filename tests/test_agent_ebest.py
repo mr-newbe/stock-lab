@@ -29,3 +29,10 @@ class TestEBest(unittest.TestCase):
       error_result = None
     assert error_result is None
     print("result:", len(all_result),len(kosdaq_result),len(kospi_result))
+
+  #get_stock_price_list_by_code 메서드의 단위 테스트
+  def test_get_stock_price_list_by_code(self):
+    print(inspect.stack()[0][3])
+    result =self.ebest.get_stock_price_by_code("005930","2")
+    assert result is not None
+    print(result)
