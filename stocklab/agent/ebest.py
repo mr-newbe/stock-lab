@@ -140,7 +140,7 @@ class EBest:
 
 
 
-
+  #t8436 주식 종목 조회 메서드
   def get_code_list(self, markey=None):
     """
     TR : t8436  코스피, 코스닥의 종목 리스트를 가져온다
@@ -158,6 +158,32 @@ class EBest:
                                  *out_params,
                                  **in_params
                                 )
+    return result
+
+  #t1305 기간별 주가 메서드
+  def get_stock_price_by_code(self, code=None, cnt="1"):
+    """
+    TR : t1305 현재 날짜를 기준으로 cnt 만큼 전일의 데이터를 가져온다.
+    :param code:str
+    :param cnt:str 이전 데이터 조회 범위(일단위)
+    :return result:list 종목의 최근 가격 정보
+    """
+    in_params = {"shcode":code, "dwmcode":"1", "date":"","cnt":cnt}
+    out_params = ['date', 'open','high', 'low', 'close', 'sign',
+                  'change', 'diff', 'volume', 'diff_vol', 'chdegree',
+                  'value', 'ppvolume', 'o_sign', 'o_change', 'o_diff',
+                  'h_sign', 'h_change', 'h_diff', 'l_sign', 'l_change',
+                  'l_diff', 'marketcap']
+    result = self._execute_query("t1305",
+                                "t1305InBlock",
+                                "t1305OutBlock1",
+                                *out_params,
+                                **in_params)
+    for item in result:
+      #밑의 코드를 대체하는 방법으론 
+      #item.update({'code':code})
+      #item.update(code=code) 등이 있다고 합니다.
+      item["code"] = code
     return result
 
   def login(self):
