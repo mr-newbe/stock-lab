@@ -36,3 +36,23 @@ class TestEBest(unittest.TestCase):
     result =self.ebest.get_stock_price_by_code("005930","2")
     assert result is not None
     print(result)
+
+  # 신용거래 동향 테스트(t1921)
+  def test_get_credit_trend_by_code(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.get_credit_by_code("005930", "20190222")
+    assert result is not None
+    print(result)
+  # 외인 기관별 종목별 동향 테스트(t1717)
+  def test_get_short_trend_by_code(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.get_short_by_code("005930", sdate="20181201",edate="20181231")
+    assert result is not None
+    print(result)
+  # 공매도 추이 테스트 (t1927)
+  def test_get_agent_trend_by_code(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.get_agent_by_code("005930", fromdt="20181201", todt="20181231")
+    assert result is not None
+    print(result)
+  
