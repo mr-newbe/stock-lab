@@ -7,6 +7,8 @@ import requests
 import configparser
 import xml.etree.ElementTree as ET
 
+
+#request로 데이터 받아온 이후 xml 파싱해 원하는 데이터 찾음
 class Data():
   #매크로 url 정의
   CORP_CODE_URL = "http://api.seibro.or.kr/openapi/service/CorpSvc/getIssucoCustnoByNm"
