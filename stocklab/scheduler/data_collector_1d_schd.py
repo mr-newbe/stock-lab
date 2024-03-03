@@ -16,3 +16,56 @@ EBest가 win32com 패키지를 사용하면서 내부적으로 프로세스와 �
 
 각자 다른 메서드를 여러개의 프로세서를 통해 동시에 수행하는 방법입니다...이게 왜 효과 있는지는 잘 모르겠지만
 """
+import time 
+import inspect
+from multiprocessing import Process
+from datetime import datetime
+
+from apscheduler.scheculers.background import BackgroundScheduler
+
+from stocklab.agent.ebest import EBest
+from stocklab.agent.data import Data
+from stocklab.db_handler.mongodb_handler import MongoDBHandler
+
+def run_process_collect_code_list():
+  print(inspect.stack()[0][3])
+  p = Process(target = collect_code_list)
+  p.start()
+  p.join()
+  
+def run_process_collect_code_list():
+  print(inspect.stack()[0][3])
+  p = Process(target = collect_stock_info)
+  p.start()
+  p.join()
+  
+
+
+def collect_code_list():
+  ebest = EBest("DEMO")
+  mongodb = MongoDBHandler()
+  ebest.login()
+  result = ebest.get_code_list("ALL")
+  mongodb.delete_items({], "stocklab", "code_info")
+  mongodb.insert_items(result, "stocklab", "code_info")
+
+
+def collect_stock_info():
+  ebest = EBest("DEMO")
+  mongodb = MongoDBHandler()
+  ebest.login()
+  code_list = mongodb.find_items({}, "stocklab", "code_info")
+  target_code = set([item["단축코드"] for item in code_lsit])
+  today = datetime.today().strftime("%Y%m%d")
+  print(today)
+  collect_list = mongodb.find_items({"날짜":today}, "stocklab", "price_info").distinct("code")
+
+  for col in collect_list:
+    target_code.remove(col)
+  for code in target_code:
+    time.sleep(1)
+    print("code:",code)
+    result_price = ebest.get_stock_price_by_code(code, "1")
+    if len(result_price)>0:
+      print(result_price)
+      mongodb.insert_items(result_price, "stocklab", "price_info")
