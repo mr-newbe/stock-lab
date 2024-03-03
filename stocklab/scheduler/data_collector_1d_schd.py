@@ -27,13 +27,17 @@ from stocklab.agent.ebest import EBest
 from stocklab.agent.data import Data
 from stocklab.db_handler.mongodb_handler import MongoDBHandler
 
+
+#스케줄러에서 실행할 메서드들, 이 둘은 프로세스를 생성합니다.
+#p.start()를 호출하는 순간부터 각 프로세스는 개별로, 다른 스레드에서 동작하게 됩니다.
+#멀티프로세싱에 대해서는 나중에 더 찾아보고 공부하도록 합시다.
 def run_process_collect_code_list():
   print(inspect.stack()[0][3])
   p = Process(target = collect_code_list)
   p.start()
   p.join()
   
-def run_process_collect_code_list():
+def run_process_collect_stock_list():
   print(inspect.stack()[0][3])
   p = Process(target = collect_stock_info)
   p.start()
@@ -69,3 +73,31 @@ def collect_stock_info():
     if len(result_price)>0:
       print(result_price)
       mongodb.insert_items(result_price, "stocklab", "price_info")
+
+    result_credit = ebest.get_credit_trend_by_code(code, today)
+    if len(result_credit) > 0:
+      mongodb.insert_items(result_price, "stocklab", "credit_info")
+
+    result_short = ebest.get_short_trend_by_code(code, sdate=today, edate=today)
+    if len(result_short)>0:
+      mongodb.insert_items(result_short, "stocklab", "short_info")
+
+    result_agent = ebest.get_agent_trend_trend_by_code(code, fromdt=today, todt=today)
+    if len(result_agent)>0:
+      mongodb.insert_items(result_agent, "stocklab", "agent_info")
+
+#BackgroundScheduler 객체를 생성하고 add_jog 메서드를 통해 실행할 함수를 지정합니다. 
+#실행할 함수는 보다시피,  run_process_collect_code_list, run_process_collect_stock_info 입니다.
+#블로그에 작성한 것처럼 스케줄러가 시간을 인지하는 방법인 cron 을 인식시켜주고 입력합시다. 
+# "python -m stocklab.scheduler.data_collector_1d_schd"로 실행하고 크론으로 지정한 시간이 되면 데이터를 수집하는 코드를 실행함
+if __name__=='__main__':
+  scheduler = BackgroundScheculer()
+  scheculer.add_job(func=run_process_collect_code_list, trigger="cron",
+                   day_of_week="mon-fri", hour="22", minute="36", id="1")
+  scheduler.add_job(func=run_process_collect_stock_info, trigger="cron",
+                   day_of_week="mon-fri", hour="19", minute="00", id="2")
+  scheduler.start()
+  #프로세스가 정상적으로 동작하고 있는지 확인하기 위한 while 문
+  while True:
+    print("running", datetime.now())
+    time.sleep(1)
