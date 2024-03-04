@@ -62,3 +62,13 @@ class TestEBest(unittest.TestCase):
     result = self.ebest.get_account_info()
     assert result is not None
     print(result)
+
+  #계좌의 보유 주식 종목을 조회하는 메서드의 테스트케이스
+  # "python -m unittest tests.test_agent_ebest" 로 테스트함
+  def test_get_account_stock_info(self):
+    result = self.ebest.get_account_stock_info()
+    assert result is not None
+    print(result)
+
+
+  
