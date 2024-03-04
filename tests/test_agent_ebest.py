@@ -86,5 +86,11 @@ class TestEBest(unittest.TestCase):
     assert result
     print(result)
 
+  #주식 체결/미체결의 테스트 케이스
+  def test_order_check(self):
+    print(inspect()[0][3])
+    result = self.ebest.order_check("29515")
+    assert result
+    print(result)
 
   
