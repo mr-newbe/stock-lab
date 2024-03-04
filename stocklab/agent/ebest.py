@@ -293,6 +293,28 @@ class EBest:
                                 **in_params)
     return result
 
+  def order_stock(self, code, qty, price, bns_type, order_type):
+    """
+    TR:CSPAT00600 현물 정상 주문
+    :param bns_type:str 매매타입, 1:매도, 2:매수
+    :param order_type:str 호가유형,
+    00:지정가, 03:시장가, 05:조건부지정가, 07:최우선지정가,
+    61:장개시전시간외 종가, 81:시간외종가, 82:시간외단일가
+    :return result:dict 주문 관련 정보
+    """
+    in_params = {"AcntNo":self.account, "InptPwd":self.passwd, "IsuNo":code, "OrdQty":qty,
+                "OrdPrc":price, "BnsTpCode":bns_type, "OrdprcPtnCode":order_type, "MgntrnCode":"000", "LoanDt":"", "OrdCndiTpCode":"0"} 
+    out_params = ["OrdNo", "OrdTime", "OrdMktCode", "OrdPtnCode", "ShtnIsuNo", "MgempNo",
+                 "OrdAmt", "SpotOrdQty", "IsuNm"]
+
+    result = self._execute_query("CSPAT00600",
+                                "CSPAT00600InBlock1",
+                                "CSPAT00600OutBlock2",
+                                *out_params,
+                                **in_params)
+
+    return result
+
   
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -340,6 +362,30 @@ class Field:
       "Dps":"예수금"
     }
   }
+
+  CSPAT00600 = {
+    "CSPAT00600OutBlock2":{
+      "RecCnt":"레코드갯수",
+      "OrdNo":"주문번호",
+      "OrdTime":"주문시각",
+      "OrdMktCode":"주문시장코드",
+      "OrdPtnCode":"주문유형코드",
+      "ShtnIsuNo":"단축종목번호",
+      "MgempNo":"관리사원번호",
+      "OrdAmt":"주문금액",
+      "SpareOrdNo":"예비주문번호",
+      "CvrgSeqno":"반대매매일련번호",
+      "RsvOrdNo":"예약주문번호",
+      "SpotOrdQty":"실물주문수량",
+      "RuseOrdQty":"재사용주문수량",
+      "MnyOrdAmt":"현금주문금액",
+      "SubstOrdAmt":"대용주문금액",
+      "RuseOrdAmt":"재사용주문금액",
+      "AcntNm":"계좌명",
+      "IsuNm":"종목명"
+    }
+  }
+  
 
 
 
