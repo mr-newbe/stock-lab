@@ -71,4 +71,13 @@ class TestEBest(unittest.TestCase):
     print(result)
 
 
+  #현물정상주문의 테스트케이스
+  #"python -m unittest tests.test_agent_ebest"로 테스트 실행
+  def test_order_stock(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.order_stock("005930", "2". "50000", "2", "00")
+    assert result
+    print(result)
+
+
   
