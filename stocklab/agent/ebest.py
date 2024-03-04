@@ -459,6 +459,31 @@ class Field:
       "IsuNm":"종목명"
     }
   }
+
+  t0425 ={
+    "t0425OutBlock1":{
+      "ordno":"주문번호",
+      "expcode":"종목번호",
+      "medosu":"구분",
+      "qty":"주문수량",
+      "price":"주문가격",
+      "cheqty":"체결수량",
+      "cheprice":"체결가격",
+      "ordrem":"미체결잔량",
+      "cfmqty":"확인수량",
+      "status":"상태",
+      "orgordno":"원주문번",
+      "ordgb":"유형",
+      "ordtime":"주문시간",
+      "ordermtd":"주문매체",
+      "sysprocseq":"처리순번",
+      "hogagb":"호가유형",
+      "price1":"현재가",
+      "orggb":"주문구분",
+      "singb":"신용구분",
+      "loandt":"대출일자"
+    }
+  }
   
 
 
