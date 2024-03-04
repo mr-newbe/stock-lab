@@ -55,4 +55,10 @@ class TestEBest(unittest.TestCase):
     result = self.ebest.get_agent_by_code("005930", fromdt="20181201", todt="20181231")
     assert result is not None
     print(result)
-  
+
+  #계좌 금액 API의 테스트 케이스
+  #테스트를 위해 "python -m unittest tests.test_agent_ebest"
+  def test_get_account_info(self):
+    result = self.ebest.get_account_info()
+    assert result is not None
+    print(result)
