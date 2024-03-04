@@ -29,7 +29,8 @@ class XASession :
     print("Session disconnected")
     XASession.login_state = 0
   
-  
+
+
 class EBest:
 
   def __init__(self,mode=None):
@@ -334,6 +335,35 @@ class EBest:
                                 **in_params)
     return result
 
+  #주식 체결, 미체결 API
+  def order_check(self, order_no):
+    """
+    TR:t0425 주식 체결/미체결
+    :param code:str 종목코드
+    :param order_no:str 주문번호
+    :return result:dict 주문번호의 체결상태
+    """
+    
+    in_params = {"accno":self.account, "passwd":self.passwd, "expcode":code, "chegb":"0","medosu":"0","sortgb":"1", "cts_ordno":" "}
+    
+    out_params = ["ordno", "expcode", "medosu", "qty", "price", "cheqty", "cheqty", "cheprice", "ordrem",
+                 "cfmqty", "status", "status", "orgordno", "ordgb", "ordermtd", "sysprocseq", "hogagb", "price1", "orggb",
+                 "singb", "loandt"]
+
+    result_list = self._execute_query("t0425",
+                                     "t0425InBlock",
+                                     "t0425OutBlock1",
+                                     *out_params,
+                                     **in_params)
+    result={}
+    if order_no is not None:
+      for item in result_list:
+        if item["주문번호"] == order_no:
+          result = item
+      return result
+    else:
+      return result_list
+    
   
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -346,7 +376,6 @@ class EBest:
     #if result:
     XASession.login_state = 0
     self.xa_session_client.DisconnectServer()
-    
 
 class XAQuery:
   RES_PATH = "C:\\eBest\\xingAPI\\Res\\"
