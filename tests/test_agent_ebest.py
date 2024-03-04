@@ -79,5 +79,12 @@ class TestEBest(unittest.TestCase):
     assert result
     print(result)
 
+  #현물 취소 주문의 테스트케이스
+  def test_order_cancel(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.order_cancel("29515", "A005930", "2")
+    assert result
+    print(result)
+
 
   
