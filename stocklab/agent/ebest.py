@@ -275,6 +275,24 @@ class EBest:
                                 *out_params,
                                 **in_params)
     return result
+
+  #계좌의 보유 주식 종목을 조회하는 API
+  def get_account_stock_info(self):
+    """
+    TR: CSPAQ12300 현물계좌 잔고내역 조회
+    :return result:list 계좌 보유 종목 정보
+    """
+    in_params = {"RecCnt":1, "AcntNo":self.account, "Pwd":self.passwd, "BalCreTp":"0",
+                "CmsnAppTpCode":"0", "D2balBaseQryTp":"0", "UprcTpCode":"0"}
+    out_params = ["IsuNo", "IsuNm", "BalQty", "SellPrc", "BuyPrc", "NowPrc", "AvrUprc", "BalEvalAmt", "PrdayCprc"]
+
+    result = self._execute_query("CSPAQ12300",
+                                "CSPAQ12300InBlock1",
+                                "CSPAQ12300OutBlock3",
+                                *out_params,
+                                **in_params)
+    return result
+
   
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
