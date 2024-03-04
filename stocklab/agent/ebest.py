@@ -315,6 +315,25 @@ class EBest:
 
     return result
 
+  def order_cancle(self, order_no, code, qty):
+    """
+    TR:CSPAT00800 현물 취소주문
+    :param order_no:str 주문번호
+    :param code:str 종목코드
+    :param qty:str 취소 수량
+    :return result:dict 취소 결과
+    """
+    in_params = {"OrgOrdNo":order_no, "AcntNo":self.account, "InptPwd":self.passwd,
+                "IsuNo":code, "OrdQty":qty}
+    out_arams = ["OrdNo", "PrntOrdNo", "Ordtime", "OrdPtncode", "IsuNm"]
+
+    result = self._execute_qurey("CSPAT00800",
+                                "CSPAT00800InBlock1",
+                                "CSPAT00800OutBlock2",
+                                *out_params,
+                                **in_params)
+    return result
+
   
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -381,6 +400,32 @@ class Field:
       "MnyOrdAmt":"현금주문금액",
       "SubstOrdAmt":"대용주문금액",
       "RuseOrdAmt":"재사용주문금액",
+      "AcntNm":"계좌명",
+      "IsuNm":"종목명"
+    }
+  }
+
+  CSPAT00800 = {
+    "CSPAT00800OutBlock2":{
+      "RecCnt":"레코드갯수",
+      "OrdNo":"주문번호",
+      "PrntOrdNo":"모주문번호",
+      "OrdTime":"주문시각",
+      "OrdMktCode":"주문시장코드",
+      "OrdPtnCode":"주문유형코드",
+      "ShtnIsuNo":"단축종목번호",
+      "PrgmOrdprcPtnCode":"프로그램호가유형코드",
+      "StslOrdprcTpCode":"공매도호가구분",
+      "StslAbleYn":"공매도가능여부",
+      "MgntrnCode":"신용거래코드",
+      "LoanDt":"대출일",
+      "CvrgOrdTp":"반대매매주문구분",
+      "LpYn":"유동성공급자여부",
+      "MgempNo":"관리사원번호",
+      "BnsTpCode":"매매구분",
+      "SpareOrdNo":"예비주문번호",
+      "CvrgSeqno":"반대매매일련번호",
+      "RsvOrdNo":"예약주문번호",
       "AcntNm":"계좌명",
       "IsuNm":"종목명"
     }
