@@ -400,6 +400,20 @@ class EBest:
       item["code"] = code
     return result
 
+  #호가 단위 조회 메서드 구현
+  def get_tick_size(self, price):
+    """
+    호가 단위 조회 메서드
+    :param price:int 가격
+    :return 호가 단위
+    """
+    if price < 1000: return 1
+    elif price >=1000 and price < 5000: return 5
+    elif price >=5000 and price < 10000: return 5
+    elif price >=10000 and price < 50000: return 5
+    elif price >=50000 and price < 100000: return 5
+    elif price >=100000 and price < 500000: return 5
+    elif price >=500000: return 1000
 
   
   def login(self):
