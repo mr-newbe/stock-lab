@@ -363,7 +363,44 @@ class EBest:
       return result
     else:
       return result_list
+
+  #주식 현재가 호가 조회의 API
+  def get_current_call_price_by_code(self, code=None):
+    """
+    TR:t1101 주식 현재가 호가 조회
+    :param code:str 종목코드
+    """
+    tr_code="t1101"
+    in_params = {"shcode":code}
+    out_params =["hname", "price", "sign", "change", "diff", "volume", 
+            "jnilclose", "offerho1","bidho1", "offerrem1", "bidrem1",
+            "offerho2","bidho2", "offerrem2", "bidrem2",
+            "offerho3","bidho3", "offerrem3", "bidrem3",
+            "offerho4","bidho4", "offerrem4", "bidrem4",
+            "offerho5","bidho5", "offerrem5", "bidrem5",
+            "offerho6","bidho6", "offerrem6", "bidrem6",
+            "offerho7","bidho7", "offerrem7", "bidrem7",
+            "offerho8","bidho8", "offerrem8", "bidrem8",
+            "offerho9","bidho9", "offerrem9", "bidrem9",
+            "offerho10","bidho10", "offerrem10", "bidrem10",
+            "preoffercha10", "prebidcha10", "offer", "bid",
+            "preoffercha", "prebidcha", "hotime", "yeprice", "yevolume",
+            "yesign", "yechange", "yediff", "tmoffer", "tmbid", "ho_status",
+            "shcode", "uplmtprice", "dnlmtprice", "open", "high", "low"]
+
+    result = self._execute_query("t1101", 
+                                "t1101InBlock", 
+                                "t1101OutBlock",
+                                *out_params,
+                                **in_params)
+
+
     
+    for item in result:
+      item["code"] = code
+    return result
+
+
   
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -391,15 +428,97 @@ class XAQuery:
 
 
 class Field:
+  #t1101의 데이터 추가
   t1101 = {
-    "t1101OutBlock":{
-      "hname":"한글명",
-      "price":"현재가",
-      "sign":"전일대비구분",
-      "open":"시가",
-      "high":"고가",
-      "low":"저가"
-  }
+        "t1101OutBlock":{
+            "hname":"한글명",
+            "price":"현재가",
+            "sign":"전일대비구분",
+            "change":"전일대비",
+            "diff":"등락율",
+            "volume":"누적거래량",
+            "jnilclose":"전일종가",
+            "offerho1":"매도호가1",
+            "bidho1":"매수호가1",
+            "offerrem1":"매도호가수량1",
+            "bidrem1":"매수호가수량1",
+            "preoffercha1":"직전매도대비수량1",
+            "prebidcha1":"직전매수대비수량1",
+            "offerho2":"매도호가2",
+            "bidho2":"매수호가2",
+            "offerrem2":"매도호가수량2",
+            "bidrem2":"매수호가수량2",
+            "preoffercha2":"직전매도대비수량2",
+            "prebidcha2":"직전매수대비수량2",
+            "offerho3":"매도호가3",
+            "bidho3":"매수호가3",
+            "offerrem3":"매도호가수량3",
+            "bidrem3":"매수호가수량3",
+            "preoffercha3":"직전매도대비수량3",
+            "prebidcha3":"직전매수대비수량3",
+            "offerho4":"매도호가4",
+            "bidho4":"매수호가4",
+            "offerrem4":"매도호가수량4",
+            "bidrem4":"매수호가수량4",
+            "preoffercha4":"직전매도대비수량4",
+            "prebidcha4":"직전매수대비수량4",
+            "offerho5":"매도호가5",
+            "bidho5":"매수호가5",
+            "offerrem5":"매도호가수량5",
+            "bidrem5":"매수호가수량5",
+            "preoffercha5":"직전매도대비수량5",
+            "prebidcha5":"직전매수대비수량5",
+            "offerho6":"매도호가6",
+            "bidho6":"매수호가6",
+            "offerrem6":"매도호가수량6",
+            "bidrem6":"매수호가수량6",
+            "preoffercha6":"직전매도대비수량6",
+            "prebidcha6":"직전매수대비수량6",
+            "offerho7":"매도호가7",
+            "bidho7":"매수호가7",
+            "offerrem7":"매도호가수량7",
+            "bidrem7":"매수호가수량7",
+            "preoffercha7":"직전매도대비수량7",
+            "prebidcha7":"직전매수대비수량7",
+            "offerho8":"매도호가8",
+            "bidho8":"매수호가8",
+            "offerrem8":"매도호가수량8",
+            "bidrem8":"매수호가수량8",
+            "preoffercha8":"직전매도대비수량8",
+            "prebidcha8":"직전매수대비수량8",
+            "offerho9":"매도호가9",
+            "bidho9":"매수호가9",
+            "offerrem9":"매도호가수량9",
+            "bidrem9":"매수호가수량9",
+            "preoffercha9":"직전매도대비수량9",
+            "prebidcha9":"직전매수대비수량9",
+            "offerho10":"매도호가10",
+            "bidho10":"매수호가10",
+            "offerrem10":"매도호가수량10",
+            "bidrem10":"매수호가수량10",
+            "preoffercha10":"직전매도대비수량10",
+            "prebidcha10":"직전매수대비수량10",
+            "offer":"매도호가수량합",
+            "bid":"매수호가수량합",
+            "preoffercha":"직전매도대비수량합",
+            "prebidcha":"직전매수대비수량합",
+            "hotime":"수신시간",
+            "yeprice":"예상체결가격",
+            "yevolume":"예상체결수량",
+            "yesign":"예상체결전일구분",
+            "yechange":"예상체결전일대비",
+            "yediff":"예상체결등락율",
+            "tmoffer":"시간외매도잔량",
+            "tmbid":"시간외매수잔량",
+            "ho_status":"동시구분",
+            "shcode":"단축코드",
+            "uplmtprice":"상한가",
+            "dnlmtprice":"하한가",
+            "open":"시가",
+            "high":"고가",
+            "low":"저가"
+        }
+    }
 
   CSPAQ12200 = {
     "CSPAQ12200OutBlock2":{
