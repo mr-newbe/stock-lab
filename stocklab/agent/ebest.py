@@ -415,6 +415,32 @@ class EBest:
     elif price >=100000 and price < 500000: return 5
     elif price >=500000: return 1000
 
+  def get_price_n_min_by_code(self, date, code, tick=None):
+    """
+    TR: t8412 주식차트(n분)
+    :param code:str 종목코드
+    :param date:str 시작시간
+    :return result:dict 하루치 분당 가격정보
+    """
+
+    in_params = {"shcode":code, "ncnt":"1", "qrycnt":"500", "nday":"1", "sdate":date,
+                "stime":"090000", "edate":date, "etime":"153000", "cts_date":"00000000", "cts_time":"0000000000", "comp_yn":"N"}
+    out_params = ["date", "time", "open", "high", "low", "close", "jdiff_vol", "value"]
+
+
+    result_list = self._execute_query("t8412",
+                                     "t8412InBlock",
+                                     "t8412OutBlock1",
+                                     *out_params,
+                                     **in_params)
+    result = {}
+    for idx, item in enumerate(result_list):
+      result[idx] = item
+    if tick is not None:
+      return result[tick]
+    return result
+
+  
   
   def login(self):
     self.xa_session_client.connectServer(self.host, self.port)
@@ -531,6 +557,21 @@ class Field:
             "open":"시가",
             "high":"고가",
             "low":"저가"
+        }
+    }
+  t8412 = {
+        "t8412OutBlock1":{
+            "date":"날짜",
+            "time":"시간",
+            "open":"시가",
+            "high":"고가",
+            "low":"저가",
+            "close":"종가",
+            "jdiff_vol":"거래량",
+            "value":"거래대금",
+            "jongchk":"수정구분",
+            "rate":"수정비율",
+            "sign":"종가등락구분"
         }
     }
 
