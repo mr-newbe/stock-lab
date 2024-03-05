@@ -93,4 +93,14 @@ class TestEBest(unittest.TestCase):
     assert result
     print(result)
 
+  #주식 현재가 호가 조회의 API 테스트 케이스
+  #"python -m unittest tests.test_agent_ebest"
+  def test_get_current_call_price_by_code(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.get_current_call_price_by_code("005930")
+    assert result
+    print(result)
+
+
+
   
