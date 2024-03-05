@@ -102,5 +102,22 @@ class TestEBest(unittest.TestCase):
     print(result)
 
 
+  #t8412 과거 주식 가격조회의 테스트케이스
+  #"python -m unittest tests.test_agent_ebest"로 테스트 진행
+  def test_get_price_n_min_by_code(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.get_price_n_min_by_code("20190412", "180640")
+    assert result
+    print(result)
+
+  def test_get_price_n_min_by_code_tick(self):
+    print(inspect.stack()[0][3])
+    result = self.ebest.get_price_n_min_by_code("20190412", "005930", 0)
+    assert result
+    print(result)
+    
+
+
+
 
   
